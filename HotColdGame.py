@@ -7,15 +7,33 @@ from openai import OpenAI
 load_dotenv()
 client = OpenAI()
 
+def get_temperature_label(diff):
+    if diff == 0:
+        return "correct"
+    elif diff <= 5:
+        return "hot"
+    elif diff <= 10:
+        return "warm"
+    elif diff <= 20:
+        return "cool"
+    else:
+        return "cold"
+
 def get_gpt_feedback(diff, guess):
-    prompt = f"I guessed {guess}, and I was {diff} away from the correct number. Roast me."
+    temp = get_temperature_label(diff)
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4.1",
+            model="gpt-4.1", 
             messages=[
-                {"role": "system", "content": "You're a sarcastic AI bot in a number guessing game. Reply with funny, creative, or savage comebacks."},
-                {"role": "user", "content": prompt}
+                {
+                    "role": "system",
+                    "content": "You're a sarcastic AI in a number guessing game. Respond with personality. NEVER reveal the number or use any actual numerical distance. React based on the temperature level only (hot, warm, cold, etc)."
+                },
+                {
+                    "role": "user",
+                    "content": f"The player's guess was a {temp} guess. Say something funny or roasty."
+                }
             ],
             max_tokens=50,
             temperature=0.9,
