@@ -12,7 +12,7 @@ def get_gpt_feedback(diff, guess):
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-4.1",
             messages=[
                 {"role": "system", "content": "You're a sarcastic AI bot in a number guessing game. Reply with funny, creative, or savage comebacks."},
                 {"role": "user", "content": prompt}
