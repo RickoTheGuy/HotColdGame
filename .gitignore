@@ -1,0 +1,31 @@
+# Bytecode cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# VS Code config
+.vscode/
+
+# Environment variables
+.env
+
+# Virtual environments
+venv/
+env/
+.venv/
+.envrc
+pip-log.txt
+
+# macOS
+.DS_Store
+
+# Jupyter stuff (in case you ever use it)
+.ipynb_checkpoints/
+
+# Logs or temp files
+*.log
+*.tmp
+
+# OS files
+Thumbs.db
+ehthumbs.db
