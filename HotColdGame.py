@@ -1,39 +1,35 @@
 import random
-
-import openai
 import os
-openai.api_key = os.getenv("OPENAI_API_KEY")
+from dotenv import load_dotenv
+from openai import OpenAI
 
+# Load your API key from .env
+load_dotenv()
+client = OpenAI()
 
-response = openai.Completion.create(
-    engine="gpt-4",
-    prompt="Roast me for missing my guess in a number game.",
-    max_tokens=50
-)
+def get_gpt_feedback(diff, guess):
+    prompt = f"I guessed {guess}, and I was {diff} away from the correct number. Roast me."
 
-print(response.choices[0].text.strip())
-
-
-def custom_ai_response(diff):
-    if diff == 0:
-        return "🎉 You nailed it! Absolute legend!"
-    elif diff <= 5:
-        return "🔥 So close! I can feel the heat from here!"
-    elif diff <= 10:
-        return "🌡️ You're warm, but not burning yet. Keep trying!"
-    elif diff <= 20:
-        return "😐 Meh, you're kinda lukewarm. You can do better."
-    elif diff <= 30:
-        return "🥶 Getting chilly... you might wanna turn up the brainpower."
-    else:
-        return "❄️ Bro... you're basically in Antarctica right now."
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You're a sarcastic AI bot in a number guessing game. Reply with funny, creative, or savage comebacks."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=50,
+            temperature=0.9,
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        return f"(OpenAI error: {e})"
 
 def hot_cold_ai_game():
     secret_number = random.randint(1, 100)
     attempts = 0
 
-    print("🤖 Hey! I'm thinking of a number between 1 and 100.")
-    print("Try to guess it. I'll tell you how you're doing... in my own special way 😎")
+    print("🤖 I'm thinking of a number between 1 and 100.")
+    print("Guess it! I'll give you feedback in my own spicy way...")
 
     while True:
         try:
@@ -41,13 +37,18 @@ def hot_cold_ai_game():
             attempts += 1
             diff = abs(secret_number - guess)
 
-            response = custom_ai_response(diff)
-            print(response)
-
             if guess == secret_number:
-                print(f"You found it in {attempts} tries! GG!")
+                print("🎯 You got it! Took you long enough 😏")
+                print(f"(You won in {attempts} tries)")
                 break
+
+            ai_comment = get_gpt_feedback(diff, guess)
+            print(ai_comment)
+
         except ValueError:
-            print("⚠️ That's not a number. Try again.")
+            print("⚠️ Not a valid number. Try again.")
+        except KeyboardInterrupt:
+            print("\n👋 Peace out!")
+            break
 
 hot_cold_ai_game()
