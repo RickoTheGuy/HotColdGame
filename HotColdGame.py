@@ -10,14 +10,21 @@ client = OpenAI()
 def get_temperature_label(diff):
     if diff == 0:
         return "correct"
+    elif diff <= 2:
+        return "on fire"
     elif diff <= 5:
         return "hot"
     elif diff <= 10:
         return "warm"
     elif diff <= 20:
         return "cool"
-    else:
+    elif diff <= 30:
         return "cold"
+    elif diff <= 50:
+        return "freezing"
+    else:
+        return "lost"
+
 
 def get_gpt_feedback(diff, guess):
     temp = get_temperature_label(diff)
@@ -35,8 +42,8 @@ def get_gpt_feedback(diff, guess):
                     "content": f"The player's guess was a {temp} guess. Say something funny or roasty."
                 }
             ],
-            max_tokens=50,
-            temperature=0.9,
+            max_tokens=20,
+            temperature=2.4,
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
