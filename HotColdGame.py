@@ -26,7 +26,7 @@ def get_temperature_label(diff):
         return "lost"
 
 
-def get_gpt_feedback(diff, guess):
+def get_gpt_feedback(diff, guess, retries=1):
     temp = get_temperature_label(diff)
 
     try:
@@ -45,7 +45,15 @@ def get_gpt_feedback(diff, guess):
             max_tokens=25,
             temperature=1.9,
         )
-        return response.choices[0].message.content.strip()
+        msg = response.choices[0].message.content.strip()
+
+        # Detect cutoff signs
+        if msg.endswith(("...", ",", "and", "but")) and retries > 0:
+            print("🛠️ Message cut off, retrying...")
+            return get_gpt_feedback(diff, guess, retries=retries - 1)
+
+        return msg
+
     except Exception as e:
         return f"(OpenAI error: {e})"
 
