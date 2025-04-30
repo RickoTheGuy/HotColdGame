@@ -29,7 +29,7 @@ def get_temperature_label(diff):
 def get_ai_intro():
     try:
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4.1",
             messages=[
                 {
                     "role": "system",
@@ -110,7 +110,7 @@ def hot_cold_ai_game():
 def get_ai_outro(attempts):
     try:
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4.1",
             messages=[
                 {
                     "role": "system",
