@@ -40,7 +40,7 @@ def get_ai_intro():
                     )
                 }
             ],
-            max_tokens=50,
+            max_tokens=75,
             temperature=1.2,
         )
         return response.choices[0].message.content.strip()
