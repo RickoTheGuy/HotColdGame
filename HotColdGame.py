@@ -1,5 +1,19 @@
 import random
 
+import openai
+import os
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+
+response = openai.Completion.create(
+    engine="gpt-4",
+    prompt="Roast me for missing my guess in a number game.",
+    max_tokens=50
+)
+
+print(response.choices[0].text.strip())
+
+
 def custom_ai_response(diff):
     if diff == 0:
         return "🎉 You nailed it! Absolute legend!"
