@@ -42,7 +42,7 @@ def get_gpt_feedback(diff, guess):
                     "content": f"The player's guess was a {temp} guess. Say something funny or roasty."
                 }
             ],
-            max_tokens=20,
+            max_tokens=25,
             temperature=1.9,
         )
         return response.choices[0].message.content.strip()
