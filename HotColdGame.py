@@ -39,7 +39,7 @@ def get_gpt_feedback(diff, guess):
                 },
                 {
                     "role": "user",
-                    "content": f"The player's guess was a {temp} guess. Say something extremely rude, but aids them in guessing."
+                    "content": f"The player's guess was a {temp} guess. Say something that indirectly gives them a clue."
                 }
             ],
             max_tokens=25,
