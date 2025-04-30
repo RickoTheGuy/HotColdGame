@@ -24,6 +24,29 @@ def get_temperature_label(diff):
         return "freezing"
     else:
         return "lost"
+    
+    
+def get_ai_intro():
+    try:
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "You're a sarcastic AI game host. Write a short, funny introduction "
+                        "to a number guessing game between 1 and 100. Set the tone like you're talking trash, "
+                        "but don't reveal anything about the number. Make it less than 30 words."
+                    )
+                }
+            ],
+            max_tokens=50,
+            temperature=1.2,
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        return "(Intro error: couldn't generate intro)"
+
 
 
 def get_gpt_feedback(diff, guess, retries=1):
@@ -61,8 +84,8 @@ def hot_cold_ai_game():
     secret_number = random.randint(1, 100)
     attempts = 0
 
-    print("🤖 I'm thinking of a number between 1 and 100.")
-    print("Guess it! I'll give you feedback in my own spicy way...")
+    print(get_ai_intro())
+
 
     while True:
         try:
@@ -71,8 +94,8 @@ def hot_cold_ai_game():
             diff = abs(secret_number - guess)
 
             if guess == secret_number:
-                print("🎯 You got it! Took you long enough 😏")
-                print(f"(You won in {attempts} tries)")
+                print(get_ai_outro(attempts))
+
                 break
 
             ai_comment = get_gpt_feedback(diff, guess)
@@ -83,5 +106,26 @@ def hot_cold_ai_game():
         except KeyboardInterrupt:
             print("\n👋 Peace out!")
             break
+        
+def get_ai_outro(attempts):
+    try:
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        f"You're a sarcastic AI game host. The player finally guessed the number "
+                        f"after {attempts} attempts. Write a short, savage outro comment. Less than 30 words."
+                    )
+                }
+            ],
+            max_tokens=50,
+            temperature=1.2,
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        return "(Outro error: couldn't generate outro)"
+
 
 hot_cold_ai_game()
