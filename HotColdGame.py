@@ -43,7 +43,7 @@ def get_gpt_feedback(diff, guess):
                 }
             ],
             max_tokens=20,
-            temperature=2.4,
+            temperature=1.9,
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
