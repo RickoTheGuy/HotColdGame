@@ -48,29 +48,34 @@ def get_ai_intro():
         return "(Intro error: couldn't generate intro)"
 
 
-
 def get_gpt_feedback(diff, guess, retries=1):
     temp = get_temperature_label(diff)
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4.1", 
+            model="gpt-4",  # or "gpt-3.5-turbo" if needed
             messages=[
                 {
                     "role": "system",
-                    "content": "You're a sarcastic AI in a number guessing game. Respond with rude snobbyness. NEVER reveal the number or use any actual numerical distance. React based on the temperature level, and also if player makes poor guesses with no source of direction. INSULT THEM! Reply in 20 words or less. Make them feel miserable like a disappointed parent/teacher. (hot, warm, cold, etc)."
+                    "content": (
+                        "You're a sarcastic, rude AI in a number guessing game. Your job is to insult the player based "
+                        "on how close or far their guess was. Never reveal numbers. Be short, savage, and clever. "
+                        "Use temperature levels (on fire, hot, warm, cold, lost, etc.) to fuel the roast. "
+                        "One sentence only. 20 words or fewer."
+                    )
                 },
                 {
                     "role": "user",
-                    "content": f"The player's guess was a {temp} guess. Say something related to their temp that gives them a clue."
+                    "content": f"The player's guess was labeled '{temp}'. Roast them accordingly."
                 }
             ],
-            max_tokens=25,
-            temperature=1.9,
+            max_tokens=40,
+            temperature=1.5,
         )
+
         msg = response.choices[0].message.content.strip()
 
-        # Detect cutoff signs
+        # Retry if it ends awkwardly
         if msg.endswith(("...", ",", "and", "but")) and retries > 0:
             print("🛠️ Message cut off, retrying...")
             return get_gpt_feedback(diff, guess, retries=retries - 1)
@@ -79,6 +84,7 @@ def get_gpt_feedback(diff, guess, retries=1):
 
     except Exception as e:
         return f"(OpenAI error: {e})"
+
 
 def hot_cold_ai_game():
     secret_number = random.randint(1, 100)
