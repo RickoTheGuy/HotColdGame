@@ -99,9 +99,10 @@ def hot_cold_ai_game():
             attempts += 1
             diff = abs(secret_number - guess)
 
+            print(f"🧠 Attempt #{attempts}:")
+
             if guess == secret_number:
                 print(get_ai_outro(attempts))
-
                 break
 
             ai_comment = get_gpt_feedback(diff, guess)
@@ -110,8 +111,9 @@ def hot_cold_ai_game():
         except ValueError:
             print("⚠️ Not a valid number. Try again.")
         except KeyboardInterrupt:
-            print("\n👋 Peace out!")
+            print("\n👋 Rage quitting? Typical.")
             break
+    
         
 def get_ai_outro(attempts):
     try:
