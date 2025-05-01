@@ -41,7 +41,7 @@ def get_ai_intro():
                 }
             ],
             max_tokens=75,
-            temperature=1.2,
+            temperature=1.3,
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
