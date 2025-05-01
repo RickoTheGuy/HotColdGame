@@ -58,11 +58,11 @@ def get_gpt_feedback(diff, guess, retries=1):
             messages=[
                 {
                     "role": "system",
-                    "content": "You're a sarcastic AI in a number guessing game. Respond with personality. NEVER reveal the number or use any actual numerical distance. React based on the temperature level, and also if player makes poor guesses with no source of direction. INSULT THEM! Reply in 20 words or less. Make them feel miserable like a disappointed parent/teacher. (hot, warm, cold, etc)."
+                    "content": "You're a sarcastic AI in a number guessing game. Respond with rude snobbyness. NEVER reveal the number or use any actual numerical distance. React based on the temperature level, and also if player makes poor guesses with no source of direction. INSULT THEM! Reply in 20 words or less. Make them feel miserable like a disappointed parent/teacher. (hot, warm, cold, etc)."
                 },
                 {
                     "role": "user",
-                    "content": f"The player's guess was a {temp} guess. Say something that indirectly gives them a clue."
+                    "content": f"The player's guess was a {temp} guess. Say something related to their temp that gives them a clue."
                 }
             ],
             max_tokens=25,
