@@ -53,7 +53,7 @@ def get_gpt_feedback(diff, guess, retries=1):
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4",  # or "gpt-3.5-turbo" if needed
+            model="gpt-4.1",  # or "gpt-3.5-turbo" if needed
             messages=[
                 {
                     "role": "system",
