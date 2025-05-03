@@ -128,6 +128,16 @@ def hot_cold_ai_game():
             break
 
 # ─── Entry Point ─────────────────────────────────────────────────────────────
+def main():
+    while True:
+        hot_cold_ai_game()
+        again = input("\nWanna get roasted again? (y/n): ").strip().lower()
+        if again != 'y':
+            print("👋 Thought so. Go heal from those burns.")
+            break
+
 if __name__ == "__main__":
-    hot_cold_ai_game()
+    main()
+
+
 
