@@ -56,8 +56,7 @@ def get_gpt_feedback(diff, retries=1):
 def get_ai_outro(attempts):
     return ask_gpt(
         model="gpt-4",
-        prompt=f"You're a sarcastic AI. The player guessed the number in {attempts} attempts. "
-               "Roast them one last time. Short, smug, and savage. Max 30 words.",
+        prompt=f"You're a sarcastic AI game host. The player guessed the number in {attempts} attempts. Rate their performance like a teacher. Use insults. Keep it under 30 words."
         max_tokens=50
     )
 
