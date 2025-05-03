@@ -3,10 +3,11 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI
 
-# Load your API key from .env
+# Load API key from .env
 load_dotenv()
 client = OpenAI()
 
+# ─── Temperature Labels ──────────────────────────────────────────────────────
 def get_temperature_label(diff):
     if diff == 0:
         return "correct"
@@ -25,110 +26,73 @@ def get_temperature_label(diff):
     else:
         return "lost"
 
+# ─── AI Responses (Intro, Feedback, Outro, Cheat Roast) ──────────────────────
 def get_ai_intro():
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4",
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "You're a sarcastic AI game host. Write a short, funny introduction "
-                        "to a number guessing game between 1 and 100. Be rude, clever, and under 30 words. "
-                        "Do NOT reveal the number."
-                    )
-                }
-            ],
-            max_tokens=75,
-            temperature=1.3,
-        )
-        return response.choices[0].message.content.strip()
-    except Exception as e:
-        return "(Intro error: couldn't generate intro)"
+    return ask_gpt(
+        model="gpt-4",
+        prompt="You're a sarcastic AI game host. Write a short, funny, disrespectful intro "
+               "to a number guessing game (1–100). Be rude. No hints. Under 30 words.",
+        max_tokens=75
+    )
 
-def get_gpt_feedback(diff, guess, retries=1):
+def get_gpt_feedback(diff, retries=1):
     temp = get_temperature_label(diff)
+    content = f"The player's guess was labeled '{temp}'. Roast them accordingly."
 
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4",
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "You're a sarcastic, rude AI in a number guessing game. Your job is to insult the player "
-                        "based on how close or far their guess was. Never reveal numbers. Use temperature labels like "
-                        "'cold', 'hot', 'lost', etc. Be clever, disrespectful, and short. No more than 1 sentence."
-                    )
-                },
-                {
-                    "role": "user",
-                    "content": f"The player's guess was labeled '{temp}'. Roast them accordingly."
-                }
-            ],
-            max_tokens=40,
-            temperature=1.5,
-        )
+    response = ask_gpt(
+        model="gpt-4",
+        prompt="You're a sarcastic, rude AI. Roast the player based on how far their guess was "
+               "using only the temp label (like 'cold', 'hot'). Never use numbers. Be petty, short, and clever.",
+        user_input=content,
+        max_tokens=40,
+        temperature=1.5
+    )
 
-        msg = response.choices[0].message.content.strip()
-
-        if msg.endswith(("...", ",", "and", "but")) and retries > 0:
-            print("🛠️ Message cut off, retrying...")
-            return get_gpt_feedback(diff, guess, retries=retries - 1)
-
-        return msg
-
-    except Exception as e:
-        return f"(OpenAI error: {e})"
+    if response.endswith(("...", ",", "and", "but")) and retries > 0:
+        print("🛠️ Message cut off, retrying...")
+        return get_gpt_feedback(diff, retries=retries - 1)
+    return response
 
 def get_ai_outro(attempts):
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4",
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        f"You're a sarcastic AI game host. The player guessed the number in {attempts} attempts. "
-                        "Roast them one last time. Short, savage, under 30 words. Be smug."
-                    )
-                }
-            ],
-            max_tokens=50,
-            temperature=1.3,
-        )
-        return response.choices[0].message.content.strip()
-    except Exception as e:
-        return "(Outro error: couldn't generate outro)"
+    return ask_gpt(
+        model="gpt-4",
+        prompt=f"You're a sarcastic AI. The player guessed the number in {attempts} attempts. "
+               "Roast them one last time. Short, smug, and savage. Max 30 words.",
+        max_tokens=50
+    )
 
 def get_cheat_roast():
+    return ask_gpt(
+        model="gpt-3.5-turbo",
+        prompt="You're a sarcastic AI. The player is suddenly guessing suspiciously well. Accuse them of cheating. "
+               "Make it short, petty, and brutal.",
+        max_tokens=40
+    )
+
+def ask_gpt(model, prompt, user_input=None, max_tokens=60, temperature=1.2):
     try:
+        messages = [{"role": "system", "content": prompt}]
+        if user_input:
+            messages.append({"role": "user", "content": user_input})
+
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "You're a sarcastic AI. The player is suddenly guessing too well. "
-                        "Call them out for cheating in a petty, funny, disrespectful way. Short and brutal."
-                    )
-                }
-            ],
-            max_tokens=40,
-            temperature=1.2,
+            model=model,
+            messages=messages,
+            max_tokens=max_tokens,
+            temperature=temperature,
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
-        return "(Couldn't accuse the cheater in time...)"
+        return f"(OpenAI error: {str(e)})"
 
+# ─── Suspect Pattern Detection ───────────────────────────────────────────────
 def is_suspect_guess_pattern(last_guesses, diff):
     if len(last_guesses) < 3:
         return False
     guess_range = max(last_guesses) - min(last_guesses)
-    if guess_range <= 5 or diff <= 2:
-        return True
-    return False
+    return guess_range <= 5 or diff <= 2
 
+# ─── Game Loop ───────────────────────────────────────────────────────────────
 def hot_cold_ai_game():
     secret_number = random.randint(1, 100)
     attempts = 0
@@ -155,8 +119,7 @@ def hot_cold_ai_game():
             if is_suspect_guess_pattern(last_guesses, diff):
                 print(get_cheat_roast())
 
-            ai_comment = get_gpt_feedback(diff, guess)
-            print(ai_comment)
+            print(get_gpt_feedback(diff))
 
         except ValueError:
             print("⚠️ That wasn’t even a number. You trying to lose on purpose?")
@@ -164,4 +127,7 @@ def hot_cold_ai_game():
             print("\n👋 Rage quitting? Figures. I expected better. No I didn’t.")
             break
 
-hot_cold_ai_game()
+# ─── Entry Point ─────────────────────────────────────────────────────────────
+if __name__ == "__main__":
+    hot_cold_ai_game()
+
